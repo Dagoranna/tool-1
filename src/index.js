@@ -1,5 +1,5 @@
 import "./tool-css.css";
-import { extensionDivID, activeDecoderObj } from "./config.js";
+import { extensionDivID, activeDecoder } from "./config.js";
 import { HtmlElement } from "./libs/html-component.js";
 import utils from "./libs/utils.js";
 
@@ -9,7 +9,8 @@ if (document.readyState === "loading") {
   init();
 }
 
-const activeDecoder = "decoder_5";
+var activeDecoderObj;
+var decoderId = "decoder";
 
 var panel = null;
 var inputsWrapper = null;
@@ -18,7 +19,18 @@ var inputField = null;
 var outputField = null;
 var optionsWrapper = null;
 
-function init() {
+async function loadData(activeDecoder) {
+  const res = await fetch(
+    "https://tools-configs.netlify.app/site-onlinestringtools-config.json",
+  );
+
+  const config = await res.json();
+  const decoderObj = config.tools.find((item) => item.name === activeDecoder);
+
+  return decoderObj;
+}
+
+async function init() {
   panel = HtmlElement.getById(extensionDivID);
 
   inputsWrapper = HtmlElement.create({
@@ -26,6 +38,8 @@ function init() {
     classes: "ext-0x03-inputs-wrapper",
     id: "ext-0x03-inputs-wrapper",
   }).appendTo(panel);
+
+  activeDecoderObj = await loadData(activeDecoder);
 
   HtmlElement.create({
     type: "div",
@@ -109,12 +123,12 @@ function drawOptions(item) {
 
   const decoderElem = HtmlElement.create({
     type: "div",
-    id: `ext-0x03-options-${item.id}`,
+    id: `ext-0x03-options-${decoderId}`,
     attrs: {
-      "data-decoder": item.id,
+      "data-decoder": decoderId,
     },
     styles: {
-      display: activeDecoder === item.id ? "flex" : "none",
+      display: "flex",
     },
     classes: "ext-0x03-options-separate",
   }).appendTo(optionsWrapper);
@@ -134,12 +148,12 @@ function drawOptions(item) {
                 type: "input",
                 attrs: {
                   type: "checkbox",
-                  name: `ext-0x03-${item.id}-${groupName}`,
+                  name: `ext-0x03-${decoderId}-${groupName}`,
                 },
                 events: {
                   change: () => decodeInputToOutput(),
                 },
-                id: `ext-0x03-${item.id}-${button.name}`,
+                id: `ext-0x03-${decoderId}-${button.name}`,
                 classes: "ext-0x03-checkbox__input",
                 value: button.value,
                 label_value: button.label,
@@ -177,12 +191,12 @@ function drawOptions(item) {
                 type: "input",
                 attrs: {
                   type: "radio",
-                  name: `ext-0x03-${item.id}-${groupName}`,
+                  name: `ext-0x03-${decoderId}-${groupName}`,
                 },
                 events: {
                   change: () => decodeInputToOutput(),
                 },
-                id: `ext-0x03-${item.id}-${button.name}`,
+                id: `ext-0x03-${decoderId}-${button.name}`,
                 classes: "ext-0x03-radio__input",
                 value: button.value,
                 label_value: button.label,
@@ -221,8 +235,8 @@ function drawOptions(item) {
                 events: {
                   change: () => decodeInputToOutput(),
                 },
-                id: `ext-0x03-${item.id}-${button.name}`,
-                name: `ext-0x03-${item.id}-${groupName}`,
+                id: `ext-0x03-${decoderId}-${button.name}`,
+                name: `ext-0x03-${decoderId}-${groupName}`,
                 classes: "ext-0x03-text-field__input",
                 attrs: {
                   placeholder: " ",
@@ -239,7 +253,7 @@ function drawOptions(item) {
               type: "label",
               classes: "ext-0x03-text-field__input__placeholder",
               attrs: {
-                for: `ext-0x03-${item.id}-${button.name}`,
+                for: `ext-0x03-${decoderId}-${button.name}`,
               },
             })
               .addChild({
@@ -273,7 +287,7 @@ function drawOptions(item) {
 
             const selectElem = HtmlElement.create({
               type: "select",
-              id: `ext-0x03-${item.id}-${button.name}`,
+              id: `ext-0x03-${decoderId}-${button.name}`,
               classes: "ext-0x03-oco-select__select",
               attrs: {
                 name: `ext-0x03-${groupName}-${button.name}`,
@@ -343,42 +357,47 @@ function decodeInputToOutput() {
 function decoderProcessing(decoderId, text) {
   let output = "";
   switch (decoderId) {
-    case "decoder_1":
+    case "String URL Encoder":
+      //decoder_1
       const encodeNonSpec = document.getElementById(
-        "ext-0x03-decoder_1-encode-all-chars",
+        "ext-0x03-decoder-encode-all-chars",
       ).checked;
       output = utils.urlEncodeText({
         encodeNonSpec,
         text,
       });
       break;
-    case "decoder_2":
+    case "String URL Decoder":
+      //decoder_2
       output = utils.urlDecodeText({ text });
       break;
-    case "decoder_3":
+    case "String to Base64 Converter":
+      //decoder_3
       const split = document.getElementById(
-        "ext-0x03-decoder_3-base64-split",
+        "ext-0x03-decoder-base64-split",
       ).checked;
       const splitSize = document.getElementById(
-        "ext-0x03-decoder_3-base64-split-length",
+        "ext-0x03-decoder-base64-split-length",
       ).value;
       output = utils.textToBase64({ text, split, splitSize });
       break;
-    case "decoder_4":
+    case "Base64 to String Decoder":
+      //decoder_4
       output = utils.base64ToText({ text });
       break;
-    case "decoder_5":
+    case "String HTML Encoder":
+      //decoder_5
       const escapeSpecialOnly = document.getElementById(
-        "ext-0x03-decoder_5-special-symbols",
+        "ext-0x03-decoder-special-symbols",
       ).checked;
       const useDecimalBases = document.getElementById(
-        "ext-0x03-decoder_5-decimal",
+        "ext-0x03-decoder-decimal",
       ).checked;
       const printNameReferences = document.getElementById(
-        "ext-0x03-decoder_5-named",
+        "ext-0x03-decoder-named",
       ).checked;
       const preserveLineBreaks = document.getElementById(
-        "ext-0x03-decoder_5-ignore-newlines",
+        "ext-0x03-decoder-ignore-newlines",
       ).checked;
       output = utils.textToHtmlEntities({
         text,
@@ -388,25 +407,29 @@ function decoderProcessing(decoderId, text) {
         preserveLineBreaks,
       });
       break;
-    case "decoder_6":
+    case "String HTML Decoder":
+      //decoder_6
       output = utils.htmlEntitiesToText({ text });
       break;
-    case "decoder_7":
+    case "String to Hexadecimal Converter":
+      //decoder_7
       const spaces = document.getElementById(
-        "ext-0x03-decoder_7-byte-spacing",
+        "ext-0x03-decoder-byte-spacing",
       ).checked;
       const prefix = document.getElementById(
-        "ext-0x03-decoder_7-byte-prefix",
+        "ext-0x03-decoder-byte-prefix",
       ).checked;
       output = utils.textToHexadecimal({ text, spaces, prefix });
       break;
-    case "decoder_8":
+    case "Hexadecimal to String Converter":
+      //decoder_8
       output = utils.hexadecimalToText({ text });
       break;
-    case "decoder_9":
+    case "ROT13 Converter":
+      //decoder_9
       output = utils.ROT13({ text });
       break;
-    case "decoder_10":
+    /*  case "decoder_10":
       const squareBrackets = document.getElementById(
         "ext-0x03-decoder_10-square-brackets",
       ).checked;
@@ -472,7 +495,7 @@ function decoderProcessing(decoderId, text) {
         multiline16,
         lowercase16,
       });
-      break;
+      break;*/
   }
 
   return output;

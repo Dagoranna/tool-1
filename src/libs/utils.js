@@ -705,7 +705,6 @@ export function refangURL(params) {
 // params.codePointBase14,
 // params.customBase14,
 export function unicodeToCodePoints(params) {
-  console.log("unicodeToCodePoints (14)");
   function addPadding(num, pad) {
     var str = num.toString();
     while (str.length < pad) {
