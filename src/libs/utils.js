@@ -218,7 +218,7 @@ function decodeSymbol() {
 }
 
 function utf8encode(string) {
-  var codePoints = EXTENSION.utils.ucs2decode(string);
+  var codePoints = ucs2decode(string);
   var length = codePoints.length;
   var index = -1;
   var codePoint;
@@ -231,7 +231,7 @@ function utf8encode(string) {
 }
 
 function utf8decode(byteString) {
-  byteArray = EXTENSION.utils.ucs2decode(byteString);
+  byteArray = ucs2decode(byteString);
   byteCount = byteArray.length;
   byteIndex = 0;
   const codePoints = [];
@@ -239,13 +239,13 @@ function utf8decode(byteString) {
   while ((tmp = decodeSymbol()) !== false) {
     codePoints.push(tmp);
   }
-  return EXTENSION.utils.ucs2encode(codePoints);
+  return ucs2encode(codePoints);
 }
 
 function stringCodeOf(string) {
   var code = [];
   for (var i = 0; i < string.length; i++) {
-    var parsed = EXTENSION.utils.codePointAt(string, i);
+    var parsed = codePointAt(string, i);
     code.push(parsed.code);
 
     if (parsed.skipAhead) i++;
@@ -355,7 +355,7 @@ export function urlEncodeText(params) {
   const output = [];
 
   function utf8Encode(string) {
-    const codePoints = EXTENSION.utils.ucs2decode(string);
+    const codePoints = ucs2decode(string);
     let utf8Str = "";
     for (let i = 0; i < codePoints.length; i++) {
       utf8Str += encodeCodePoint(codePoints[i]);
@@ -482,7 +482,7 @@ export function textToHtmlEntities(params) {
     "&".charCodeAt(0),
   ];
   const newLineCode = "\n".charCodeAt(0);
-  const codes = EXTENSION.utils.stringCodeOf(text);
+  const codes = stringCodeOf(text);
   for (let i = 0; i < codes.length; i++) {
     let code = codes[i];
     if (specialSymbolsOnly) {
@@ -622,7 +622,7 @@ export function hexadecimalToText(params) {
   }
 
   try {
-    ret = EXTENSION.utils.utf8decode(ret);
+    ret = utf8decode(ret);
   } catch (e) {
     ret = "Can't convert: " + e.message;
   }
@@ -717,13 +717,13 @@ export function unicodeToCodePoints(params) {
   const text = params.text;
 
   var bytes = [];
-  var encoded = EXTENSION.utils.utf8encode(text);
+  var encoded = utf8encode(text);
   for (var i = 0; i < encoded.length; i++) {
     var byte = encoded[i].charCodeAt(0);
     bytes.push(byte);
   }
 
-  var codePoints = EXTENSION.utils.utf8ToCodePoints(bytes);
+  var codePoints = utf8ToCodePoints(bytes);
 
   var baseStr = params.codePointBase14;
   if (baseStr == "custom") {
